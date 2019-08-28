@@ -8,14 +8,14 @@ import (
 )
 
 // 填充
-func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
+func pKCS5Padding(ciphertext []byte, blockSize int) []byte {
 	padding := blockSize - len(ciphertext)%blockSize
 	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(ciphertext, padtext...)
 }
 
 // 去填充
-func PKCS5UnPadding(origData []byte) []byte {
+func pKCS5UnPadding(origData []byte) []byte {
 	length := len(origData)
 	// 去掉最后一个字节 unpadding 次
 	unpadding := int(origData[length-1])
@@ -23,7 +23,7 @@ func PKCS5UnPadding(origData []byte) []byte {
 }
 
 // 加密内容
-func Aes128Encrypt(origData, key []byte, IV []byte) ([]byte, error) {
+func aes128Encrypt(origData, key []byte, IV []byte) ([]byte, error) {
 	if key == nil || len(key) != 16 {
 		return nil, nil
 	}
@@ -36,7 +36,7 @@ func Aes128Encrypt(origData, key []byte, IV []byte) ([]byte, error) {
 		return nil, err
 	}
 	blockSize := block.BlockSize()
-	origData = PKCS5Padding(origData, blockSize)
+	origData = pKCS5Padding(origData, blockSize)
 	blockMode := cipher.NewCBCEncrypter(block, IV[:blockSize])
 	crypted := make([]byte, len(origData))
 	// 根据CryptBlocks方法的说明，如下方式初始化crypted也可以
@@ -45,7 +45,7 @@ func Aes128Encrypt(origData, key []byte, IV []byte) ([]byte, error) {
 }
 
 // 解密内容
-func Aes128Decrypt(crypted, key []byte, IV []byte) ([]byte, error) {
+func aes128Decrypt(crypted, key []byte, IV []byte) ([]byte, error) {
 	if key == nil || len(key) != 16 {
 		return nil, nil
 	}
@@ -61,13 +61,13 @@ func Aes128Decrypt(crypted, key []byte, IV []byte) ([]byte, error) {
 	blockMode := cipher.NewCBCDecrypter(block, IV[:blockSize])
 	origData := make([]byte, len(crypted))
 	blockMode.CryptBlocks(origData, crypted)
-	origData = PKCS5UnPadding(origData)
+	origData = pKCS5UnPadding(origData)
 	return origData, nil
 }
 
 // 加密
 func Encrypt(src string, key string, iv string) string {
-	result, err := Aes128Encrypt([]byte(src), []byte(key), []byte(iv))
+	result, err := aes128Encrypt([]byte(src), []byte(key), []byte(iv))
 	if err != nil {
 		panic(err)
 	}
@@ -83,7 +83,7 @@ func Decrypt(src string, key string, iv string) string {
 	if err != nil {
 		panic(err)
 	}
-	origData, err := Aes128Decrypt(result, []byte(key), []byte(iv))
+	origData, err := aes128Decrypt(result, []byte(key), []byte(iv))
 	if err != nil {
 		panic(err)
 	}
