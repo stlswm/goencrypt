@@ -66,26 +66,26 @@ func aes128Decrypt(crypted, key []byte, IV []byte) ([]byte, error) {
 }
 
 // 加密
-func Encrypt(src string, key string, iv string) string {
+func Encrypt(src string, key string, iv string) (error, string) {
 	result, err := aes128Encrypt([]byte(src), []byte(key), []byte(iv))
 	if err != nil {
-		panic(err)
+		return err, ""
 	}
-	return base64.RawStdEncoding.EncodeToString(result)
+	return nil, base64.RawStdEncoding.EncodeToString(result)
 }
 
 // 解密
-func Decrypt(src string, key string, iv string) string {
+func Decrypt(src string, key string, iv string) (error, string) {
 	var result []byte
 	var err error
 
 	result, err = base64.RawStdEncoding.DecodeString(src)
 	if err != nil {
-		panic(err)
+		return err, ""
 	}
 	origData, err := aes128Decrypt(result, []byte(key), []byte(iv))
 	if err != nil {
-		panic(err)
+		return err, ""
 	}
-	return string(origData)
+	return nil, string(origData)
 }
