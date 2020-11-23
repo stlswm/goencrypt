@@ -65,7 +65,7 @@ func aes128Decrypt(crypted, key []byte, IV []byte) ([]byte, error) {
 	return origData, nil
 }
 
-// 加密
+// aes128-cbc加密
 func Encrypt(src string, key string, iv string) (error, string) {
 	result, err := aes128Encrypt([]byte(src), []byte(key), []byte(iv))
 	if err != nil {
@@ -74,7 +74,7 @@ func Encrypt(src string, key string, iv string) (error, string) {
 	return nil, base64.RawStdEncoding.EncodeToString(result)
 }
 
-// 解密
+// aes128-cbc解密
 func Decrypt(src string, key string, iv string) (error, string) {
 	var result []byte
 	var err error
